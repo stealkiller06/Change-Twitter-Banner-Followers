@@ -4,11 +4,12 @@ const client = require('twitter-api-client');
 const axios = require('axios');
 const fs = require('fs');
 const jimp = require('jimp');
-
-
+const http = require('http');
+const hostname = '127.0.0.1';
+const port = 3000;
+let error = 0;
 // Your Twitter account
 const TWITTER_HANDLE = 'FrankPena_'
-
 
 
 const twitterClient = new client.TwitterClient({
@@ -22,16 +23,7 @@ const twitterClient = new client.TwitterClient({
 
 
 
-// Test the twitter-api-client
-// async function test() {
-//   const data = await twitterClient.accountsAndUsers.accountVerifyCredentials()
-//   .catch(err=>console.log(err))
-//   console.log(data)
 
-//   // console.log(data.users)
-// }
-
-// test()
 
 //push the url of profile image recent followers
 let image_url = [];
@@ -39,23 +31,10 @@ let image_url = [];
 //check below drawit()
 let lastDrawImage = 0;
 
-//function to download image
-const download_image = (url, image_path) =>
-axios({
-  url,
-  responseType: 'stream',
-}).then(
-  response =>
-    new Promise((resolve, reject) => {
-      response.data
-        .pipe(fs.createWriteStream(image_path))
-        .on('finish', () => resolve())
-        .on('error', e => reject(e));
-    }),
-)
 
   // function to draw image and post it
   async function drawImage(back, img1, img2, img3){
+  
     //Creating an array so it becomes easier to Promise.all instead of one at a time
     //Would love to see if you have any other approach to this, can't think of anything else
     let imgArr = [back, img1, img2, img3];
@@ -66,7 +45,7 @@ axios({
     imgArr.forEach(image => jimps.push(jimp.read(image)));
   
     // fetch all the images
-    Promise.all(jimps).then(data => {
+   await Promise.all(jimps).then(data => {
       return Promise.all(jimps)
     }).then(data => {
       // composite the images on one another
@@ -79,13 +58,27 @@ axios({
         console.log("done");
       })
     })
+    .catch(err=>{
+
+      console.log(err) 
+      error++;
+    })
+
+    if(error > 0) {
+      error = 0;
+      return;
+    }
   
     // encode to base64 to post the image
-    const base64 = await fs.readFileSync('1500x500.png', { encoding: 'base64' });
-    // console.log(base64);
+    const base64 = await fs.readFileSync('1500x500.png', { encoding:'base64' })
+     console.log(base64);
   
     // Update the banner
-    await twitterClient.accountsAndUsers.accountUpdateProfileBanner({banner: base64});
+
+    // console.log(base64);
+    // await twitterClient.accountsAndUsers.accountUpdateProfileBanner({banner: base64}).catch(err => {
+    //   console.log(err);base64_en
+    // })
   }
 
 async function start() {
@@ -101,8 +94,13 @@ try{
   // fetch followers
   const data = await twitterClient.accountsAndUsers.followersList(params).catch(err=>{
     console.log(err)
+    error ++;
   })
 
+  if(error > 0) {
+    error = 0;
+    return;
+  }
   //push url of profile image to array
   data.users.forEach(item => {
     image_url.unshift(item.profile_image_url_https)
@@ -117,7 +115,9 @@ try{
   async function drawit() {
     lastDrawImage = Date.now();
     // Draw the image and Post it
-    await drawImage('1500x500.png' ,image_url[0],image_url[1],image_url[2]);
+    await drawImage('1500x500.png' ,image_url[0],image_url[1],image_url[2]).catch(err => {
+      console.log(err);
+    })
   }
   async function deleteImages() {
     try{
@@ -151,6 +151,23 @@ try{
 
 // start everything
 start();
-// setInterval(() => {
-//   start(); 
-// }, 6000);
+setInterval(() => {
+  start(); 
+}, 6000);
+
+
+process.on('uncaughtException', err => {
+  console.error('There was an uncaught error', err)
+  process.exit(1) //mandatory (as per the Node.js docs)
+})
+
+
+const server = http.createServer((req, res) => {
+  res.statusCode = 200;
+  res.setHeader('Content-Type', 'text/plain');
+  res.end('Hello, World!\n');
+});
+
+server.listen(port, hostname, () => {
+  console.log(`Server running at http://${hostname}:${port}/`);
+});
