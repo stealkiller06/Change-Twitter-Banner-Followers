@@ -4,6 +4,8 @@ const client = require('twitter-api-client');
 const axios = require('axios');
 const fs = require('fs');
 const jimp = require('jimp');
+var request = require('request').defaults({ encoding: null });
+
 
 // Your Twitter account
 const TWITTER_HANDLE = 'FrankPena_'
@@ -106,17 +108,17 @@ try{
   data.users.forEach(item => {
     image_url.unshift(item.profile_image_url_https)
   });
-  
+
   (async () => {
     //download the image
-    await download_image(image_url[0], `${name}-1.png`)
-    await download_image(image_url[1], `${name}-2.png`)
-    await download_image(image_url[2], `${name}-3.png`)
+    // await download_image(image_url[0], `${name}-1.png`)
+    // await download_image(image_url[1], `${name}-2.png`)
+    // await download_image(image_url[2], `${name}-3.png`)
 
   async function drawit() {
     lastDrawImage = Date.now();
     // Draw the image and Post it
-    await drawImage('1500x500.png' ,`${name}-1.png`,`${name}-2.png`,`${name}-3.png`);
+    await drawImage('1500x500.png' ,image_url[0],image_url[1],image_url[2]);
   }
   async function deleteImages() {
     try{
@@ -135,7 +137,7 @@ try{
   if (remaining > 30000) {
     await drawit();
   }
-  await deleteImages();
+  // await deleteImages();
 
 
 
@@ -150,6 +152,6 @@ try{
 
 // start everything
 start();
-setInterval(() => {
-  start(); 
-}, 6000);
+// setInterval(() => {
+//   start(); 
+// }, 6000);
