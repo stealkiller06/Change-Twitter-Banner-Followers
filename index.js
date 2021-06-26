@@ -4,7 +4,6 @@ const client = require('twitter-api-client');
 const axios = require('axios');
 const fs = require('fs');
 const jimp = require('jimp');
-var request = require('request').defaults({ encoding: null });
 
 
 // Your Twitter account
