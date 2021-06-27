@@ -75,9 +75,9 @@ let lastDrawImage = 0;
     // Update the banner
 
     // console.log(base64);
-    // await twitterClient.accountsAndUsers.accountUpdateProfileBanner({banner: base64}).catch(err => {
-    //   console.log(err);base64_en
-    // })
+    await twitterClient.accountsAndUsers.accountUpdateProfileBanner({banner: base64}).catch(err => {
+      console.log(err);
+    })
   }
 
 async function start() {
