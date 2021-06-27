@@ -6,7 +6,7 @@ const fs = require('fs');
 const jimp = require('jimp');
 const http = require('http');
 const hostname = '127.0.0.1';
-const port = 3000;
+const port = 80;
 let error = 0;
 // Your Twitter account
 const TWITTER_HANDLE = 'FrankPena_'
@@ -71,7 +71,6 @@ let lastDrawImage = 0;
   
     // encode to base64 to post the image
     const base64 = await fs.readFileSync('1500x500.png', { encoding:'base64' })
-     console.log(base64);
   
     // Update the banner
 
