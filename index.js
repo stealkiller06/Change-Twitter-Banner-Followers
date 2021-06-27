@@ -6,7 +6,7 @@ const fs = require('fs');
 const jimp = require('jimp');
 const http = require('http');
 const hostname = '127.0.0.1';
-const port = 80;
+const port = process.env.PORT || 3000;
 let error = 0;
 // Your Twitter account
 const TWITTER_HANDLE = 'FrankPena_'
